@@ -1,0 +1,7 @@
+name: {{ project_name }}
+
+topology:
+  nodes:
+    {{ topology_nodes | default({}) | combine(templated_nodes | default({})) | to_nice_yaml | indent(4) }}
+  links:
+    {{ topology.links | default([]) | to_nice_yaml | indent(4) }}

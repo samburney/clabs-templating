@@ -1,0 +1,46 @@
+project_name: demo-01
+
+topology:
+  nodes:
+    rtr1:
+      kind: templated
+      nos: frrouting
+      daemons:
+        ospfd: true
+        ospf6d: true
+        isisd: true
+        bgpd: true
+        ldpd: true
+    rtr2:
+      kind: templated
+      nos: frrouting
+      daemons:
+        ospfd: true
+        ospf6d: true
+        isisd: true
+        bgpd: true
+        ldpd: true
+    rtr3:
+      kind: templated
+      nos: frrouting
+      daemons:
+        ospfd: true
+        ospf6d: true
+        isisd: true
+        bgpd: true
+        ldpd: true
+    canary1:
+      kind: linux
+      image: library/ubuntu:latest
+    canary2:
+      kind: linux
+      image: local/ubuntu:latest
+
+  links:
+    - endpoints: [rtr1:eth2, rtr2:eth1]
+    - endpoints: [rtr2:eth2, rtr3:eth1]
+    - endpoints: [rtr3:eth2, rtr1:eth1]
+    - endpoints: [canary1:eth1, canary2:eth1]
+    - endpoints: [canary2:eth2, rtr1:eth3]
+    - endpoints: [canary2:eth3, rtr2:eth3]
+    - endpoints: [canary2:eth4, rtr3:eth3]

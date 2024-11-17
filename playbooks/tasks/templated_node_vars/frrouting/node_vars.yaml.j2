@@ -1,0 +1,21 @@
+{% set nodes = {} %}
+
+{% for node_key, node_values in kind_nodes_vars.items() %}
+
+{# Prefill from node template #}
+{% set node = lookup('template', templates_path + '/' + templated_node_kind + '/node.yaml.j2', template_vars={'node_name': node_key, 'node': node_values }) | trim | from_yaml %}
+
+{# Update with node-specific data #}
+{% set excluded_node_values = ['nos', 'kind', 'tag', 'daemons'] %}
+
+{% for value_key, value_values in node_values.items() %}
+{% if value_key not in excluded_node_values %}
+{% set _ = node.update({value_key: value_values}) %}
+{% endif %}
+{% endfor %}
+
+{% set _ = nodes.update({node_key: node}) %}
+{% endfor %}
+
+{# Yield nodes data #}
+{{ nodes }}

@@ -1,0 +1,5 @@
+kind: linux
+image: quay.io/frrouting/frr:{{ node.tag | default('10.1.1') }}
+binds:
+  - {{ node_name }}/config/daemons:/etc/frr/daemons
+  - {{ node_name }}/config/frr.conf:/etc/frr/frr.conf

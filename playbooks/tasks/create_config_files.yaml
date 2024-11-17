@@ -1,0 +1,10 @@
+- name: Add config directory
+  ansible.builtin.file:
+    path: "{{ project_path }}/{{ node }}/config"
+    state: directory
+
+- name: Add config files
+  loop: "{{ config_files }}"
+  ansible.builtin.template:
+    src: "{{ templates_path }}/{{ templated_node_kind }}/{{ item }}.j2"
+    dest: "{{ project_path }}/{{ node }}/config/{{ item }}"

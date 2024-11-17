@@ -1,0 +1,43 @@
+## FRRouting
+- name: Build kind_nodes_vars variable
+  vars:
+    kind_nodes_vars: |
+      {% set nodes = {} %}
+      {% for node, node_values in templated_node_vars.items() %}
+      {% if node_values.nos == templated_node_kind %}
+      {% set _ = nodes.update({node: node_values}) %}
+      {% endif %}
+      {% endfor %}
+      {{ nodes }}
+  ansible.builtin.set_fact:
+    kind_nodes_vars: "{{ kind_nodes_vars }}"
+
+- name: Generate templated_vars for this node kind
+  vars:
+    kind_templated_vars: "{{ lookup('template', 'tasks/templated_node_vars/' + templated_node_kind + '/node_vars.yaml.j2') | trim }}"
+  ansible.builtin.set_fact:
+    kind_templated_vars: "{{ kind_templated_vars }}"
+
+- name: Update templated_nodes
+  vars:
+    new_templated_nodes: "{{ templated_nodes | combine(kind_templated_vars | default({})) }}"
+  ansible.builtin.set_fact:
+    templated_nodes: "{{ new_templated_nodes }}"
+
+- name: Create config files
+  vars:
+    config_files:
+      - daemons
+      - frr.conf
+    nodes: |
+      {% set nodes = [] %}
+      {% for node, node_values in kind_nodes_vars.items() %}
+      {% set _ = nodes.append(node) %}
+      {% endfor %}
+      {{ nodes }}
+    nodes_data: "{{ kind_nodes_vars }}"
+  loop: "{{ nodes }}"
+  loop_control:
+    loop_var: node
+  ansible.builtin.include_tasks:
+    file: tasks/create_config_files.yaml
